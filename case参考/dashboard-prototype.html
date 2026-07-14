@@ -1,0 +1,845 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Native Workspace — Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f8f9fa;
+    --bg-secondary: #f1f3f5;
+    --surface: #ffffff;
+    --border: #e9ecef;
+    --border-light: #f1f3f5;
+    --text: #1a1a2e;
+    --text-secondary: #868e96;
+    --text-tertiary: #adb5bd;
+    --primary: #5e6ad2;
+    --primary-hover: #4f5bc2;
+    --primary-light: #f0f1ff;
+    --success: #0f783e;
+    --success-bg: #ecfdf5;
+    --warning: #b54708;
+    --warning-bg: #fff7ed;
+    --danger: #e5484d;
+    --danger-bg: #fef2f2;
+    --purple: #7c3aed;
+    --purple-bg: #f5f3ff;
+    --blue: #2563eb;
+    --blue-bg: #eff6ff;
+    --radius: 12px;
+    --radius-sm: 8px;
+    --radius-xs: 6px;
+    --shadow-sm: 0 1px 2px rgba(0,0,0,0.04);
+    --shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+    --transition: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+    --font: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  }
+
+  [data-theme="dark"] {
+    --bg: #0d0d0d;
+    --bg-secondary: #141414;
+    --surface: #1a1a1a;
+    --border: #2a2a2a;
+    --border-light: #222222;
+    --text: #ecedee;
+    --text-secondary: #878787;
+    --text-tertiary: #5a5a5a;
+    --primary: #6c7cfc;
+    --primary-hover: #5b6be8;
+    --primary-light: #1a1a3e;
+    --success: #3ecf8e;
+    --success-bg: #0a2e1a;
+    --warning: #f59e0b;
+    --warning-bg: #2e1a0a;
+    --danger: #f87171;
+    --danger-bg: #2e0a0a;
+    --purple: #a78bfa;
+    --purple-bg: #1a1a3e;
+    --blue: #60a5fa;
+    --blue-bg: #0a1a2e;
+    --shadow-sm: none;
+    --shadow: none;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: var(--font);
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    display: flex;
+    font-size: 14px;
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* Sidebar */
+  .sidebar {
+    width: 232px;
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    padding: 20px 12px;
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    z-index: 20;
+  }
+
+  .sidebar-logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 6px 8px;
+    margin-bottom: 24px;
+    text-decoration: none;
+    color: var(--text);
+  }
+
+  .sidebar-logo .logo-icon {
+    width: 28px;
+    height: 28px;
+    background: var(--primary);
+    border-radius: var(--radius-xs);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 14px;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+
+  .sidebar-logo .logo-text {
+    font-weight: 700;
+    font-size: 15px;
+    letter-spacing: -0.01em;
+  }
+
+  .sidebar-nav { display: flex; flex-direction: column; gap: 2px; }
+
+  .sidebar-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 7px 10px;
+    border-radius: var(--radius-xs);
+    color: var(--text-secondary);
+    text-decoration: none;
+    font-size: 13.5px;
+    font-weight: 450;
+    transition: all var(--transition);
+    cursor: pointer;
+    position: relative;
+  }
+
+  .sidebar-item:hover { background: var(--bg-secondary); color: var(--text); }
+  .sidebar-item.active { background: var(--primary-light); color: var(--primary); font-weight: 550; }
+
+  .sidebar-item svg { width: 18px; height: 18px; flex-shrink: 0; opacity: 0.7; }
+  .sidebar-item.active svg { opacity: 1; }
+
+  .sidebar-item .badge {
+    margin-left: auto;
+    background: var(--primary-light);
+    color: var(--primary);
+    font-size: 11px;
+    font-weight: 600;
+    padding: 1px 7px;
+    border-radius: 10px;
+    min-width: 20px;
+    text-align: center;
+  }
+
+  .sidebar-divider {
+    height: 1px;
+    background: var(--border);
+    margin: 16px 0;
+  }
+
+  .sidebar-section-label {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-tertiary);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    padding: 4px 10px;
+    margin-bottom: 4px;
+  }
+
+  .sidebar-project {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    padding: 6px 10px;
+    border-radius: var(--radius-xs);
+    color: var(--text-secondary);
+    font-size: 13.5px;
+    cursor: pointer;
+    transition: all var(--transition);
+    font-weight: 450;
+  }
+
+  .sidebar-project:hover { background: var(--bg-secondary); color: var(--text); }
+
+  .project-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .sidebar-footer {
+    margin-top: auto;
+    padding-top: 12px;
+    border-top: 1px solid var(--border);
+  }
+
+  .sidebar-user {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    padding: 6px 8px;
+    border-radius: var(--radius-xs);
+    cursor: pointer;
+    transition: background var(--transition);
+  }
+
+  .sidebar-user:hover { background: var(--bg-secondary); }
+
+  .user-avatar {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--primary), #8b5cf6);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 700;
+    flex-shrink: 0;
+    letter-spacing: 0.02em;
+  }
+
+  .user-info { display: flex; flex-direction: column; gap: 0px; }
+  .user-name { font-size: 13px; font-weight: 550; line-height: 1.3; }
+  .user-role { font-size: 11px; color: var(--text-tertiary); line-height: 1.3; }
+
+  /* Main */
+  .main {
+    margin-left: 232px;
+    flex: 1;
+    padding: 36px 44px;
+    max-width: 1280px;
+    min-width: 0;
+  }
+
+  /* Top Bar */
+  .topbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 32px;
+  }
+
+  .topbar-left h1 {
+    font-size: 24px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    margin-bottom: 4px;
+  }
+
+  .topbar-left .subtitle {
+    font-size: 13px;
+    color: var(--text-secondary);
+    font-weight: 400;
+  }
+
+  .topbar-right {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    border-radius: var(--radius-xs);
+    font-size: 13px;
+    font-weight: 550;
+    cursor: pointer;
+    border: none;
+    transition: all var(--transition);
+    font-family: var(--font);
+    text-decoration: none;
+    white-space: nowrap;
+  }
+
+  .btn-primary {
+    background: var(--primary);
+    color: white;
+    box-shadow: 0 1px 2px rgba(94,106,210,0.25);
+  }
+
+  .btn-primary:hover { background: var(--primary-hover); box-shadow: 0 2px 4px rgba(94,106,210,0.3); }
+
+  .btn-secondary {
+    background: var(--surface);
+    color: var(--text-secondary);
+    border: 1px solid var(--border);
+  }
+
+  .btn-secondary:hover { background: var(--bg-secondary); color: var(--text); }
+
+  .btn-icon {
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--radius-xs);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: all var(--transition);
+  }
+
+  .btn-icon:hover { background: var(--bg-secondary); color: var(--text); }
+
+  .btn svg { width: 16px; height: 16px; }
+
+  /* Stats Row */
+  .stats-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 14px;
+    margin-bottom: 30px;
+  }
+
+  .stat-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 18px 22px;
+    box-shadow: var(--shadow-sm);
+    transition: box-shadow var(--transition), border-color var(--transition);
+  }
+
+  .stat-card:hover { box-shadow: var(--shadow); border-color: #d0d5dd; }
+
+  .stat-card .stat-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: var(--radius-xs);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 12px;
+    font-size: 15px;
+  }
+
+  .stat-card:nth-child(1) .stat-icon { background: var(--primary-light); color: var(--primary); }
+  .stat-card:nth-child(2) .stat-icon { background: var(--danger-bg); color: var(--danger); }
+  .stat-card:nth-child(3) .stat-icon { background: var(--purple-bg); color: var(--purple); }
+  .stat-card:nth-child(4) .stat-icon { background: var(--success-bg); color: var(--success); }
+
+  .stat-card .stat-num {
+    font-size: 30px;
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    margin-bottom: 2px;
+    line-height: 1;
+  }
+
+  .stat-card .stat-label {
+    font-size: 12.5px;
+    color: var(--text-secondary);
+    font-weight: 450;
+  }
+
+  .stat-card .stat-sub {
+    font-size: 11px;
+    color: var(--text-tertiary);
+    margin-top: 4px;
+  }
+
+  /* Content Grid */
+  .content-grid {
+    display: grid;
+    grid-template-columns: 1.5fr 1fr;
+    gap: 18px;
+  }
+
+  .content-grid.full { grid-template-columns: 1fr; }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-sm);
+    overflow: hidden;
+  }
+
+  .card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px 20px;
+    border-bottom: 1px solid var(--border-light);
+    font-weight: 600;
+    font-size: 13.5px;
+    letter-spacing: -0.01em;
+  }
+
+  .card-header .card-count {
+    font-size: 12px;
+    color: var(--text-tertiary);
+    font-weight: 500;
+    background: var(--bg-secondary);
+    padding: 2px 10px;
+    border-radius: 10px;
+  }
+
+  .card-header .card-action {
+    font-size: 12.5px;
+    color: var(--primary);
+    text-decoration: none;
+    font-weight: 500;
+    cursor: pointer;
+  }
+
+  .card-header .card-action:hover { text-decoration: underline; }
+
+  .card-body { padding: 6px 0; }
+
+  /* Issue Item */
+  .issue-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 20px;
+    cursor: pointer;
+    transition: background var(--transition);
+    border-bottom: 1px solid var(--border-light);
+    text-decoration: none;
+    color: inherit;
+  }
+
+  .issue-item:last-child { border-bottom: none; }
+  .issue-item:hover { background: var(--bg-secondary); }
+
+  .issue-type-dot {
+    width: 9px;
+    height: 9px;
+    border-radius: 3px;
+    flex-shrink: 0;
+  }
+
+  .issue-type-dot.bug { background: var(--danger); border-radius: 50%; }
+  .issue-type-dot.feature { background: var(--purple); }
+  .issue-type-dot.task { background: var(--blue); border-radius: 50%; }
+  .issue-type-dot.improvement { background: var(--success); }
+
+  .issue-type-badge {
+    font-size: 11px;
+    font-weight: 600;
+    padding: 2px 7px;
+    border-radius: 4px;
+    flex-shrink: 0;
+    letter-spacing: 0.01em;
+  }
+
+  .issue-type-badge.bug { background: var(--danger-bg); color: var(--danger); }
+  .issue-type-badge.feature { background: var(--purple-bg); color: var(--purple); }
+  .issue-type-badge.task { background: var(--blue-bg); color: var(--blue); }
+  .issue-type-badge.improvement { background: var(--success-bg); color: var(--success); }
+
+  .issue-id {
+    font-size: 12px;
+    color: var(--text-tertiary);
+    flex-shrink: 0;
+    font-weight: 500;
+    min-width: 30px;
+  }
+
+  .issue-title {
+    flex: 1;
+    font-size: 13.5px;
+    font-weight: 480;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    line-height: 1.3;
+  }
+
+  .issue-priority {
+    font-size: 11px;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-weight: 550;
+    flex-shrink: 0;
+    letter-spacing: 0.01em;
+  }
+
+  .issue-priority.urgent { background: var(--danger-bg); color: var(--danger); }
+  .issue-priority.high { background: var(--warning-bg); color: var(--warning); }
+  .issue-priority.medium { background: var(--bg-secondary); color: var(--text-secondary); }
+  .issue-priority.low { color: var(--text-tertiary); }
+
+  .issue-status {
+    font-size: 11px;
+    padding: 3px 10px;
+    border-radius: 12px;
+    font-weight: 550;
+    flex-shrink: 0;
+    letter-spacing: 0.01em;
+  }
+
+  .issue-status.in-progress { background: var(--primary-light); color: var(--primary); }
+  .issue-status.testing { background: var(--warning-bg); color: var(--warning); }
+  .issue-status.done { background: var(--success-bg); color: var(--success); }
+  .issue-status.new { background: var(--bg-secondary); color: var(--text-secondary); }
+  .issue-status.suggested { background: var(--warning-bg); color: var(--warning); }
+
+  .issue-assignee {
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    background: var(--primary-light);
+    color: var(--primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10.5px;
+    font-weight: 700;
+    flex-shrink: 0;
+    letter-spacing: 0.02em;
+  }
+
+  .issue-assignee.unassigned {
+    background: var(--bg-secondary);
+    color: var(--text-tertiary);
+    border: 1.5px dashed var(--border);
+  }
+
+  /* Status Distribution */
+  .status-list { }
+
+  .status-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 20px;
+    cursor: pointer;
+    transition: background var(--transition);
+    border-bottom: 1px solid var(--border-light);
+  }
+
+  .status-row:last-child { border-bottom: none; }
+  .status-row:hover { background: var(--bg-secondary); }
+
+  .status-indicator {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .status-indicator.new { background: #b0b8c1; }
+  .status-indicator.suggested { background: #f59e0b; }
+  .status-indicator.accepted { background: #3b82f6; }
+  .status-indicator.inprogress { background: var(--primary); }
+  .status-indicator.readytest { background: #8b5cf6; }
+  .status-indicator.testing { background: #f59e0b; }
+  .status-indicator.done { background: var(--success); }
+
+  .status-row-name { flex: 1; font-size: 13px; font-weight: 460; }
+  .status-row-count { font-size: 12px; color: var(--text-tertiary); font-weight: 550; }
+
+  /* Page Tabs */
+  .page-tabs {
+    display: flex;
+    gap: 4px;
+    margin-bottom: 24px;
+    background: var(--bg-secondary);
+    border-radius: var(--radius-xs);
+    padding: 3px;
+    width: fit-content;
+  }
+
+  .page-tab {
+    padding: 6px 16px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all var(--transition);
+    color: var(--text-secondary);
+    border: none;
+    background: transparent;
+    font-family: var(--font);
+  }
+
+  .page-tab.active {
+    background: var(--surface);
+    color: var(--text);
+    box-shadow: var(--shadow-sm);
+  }
+
+  .page-tab:hover:not(.active) { color: var(--text); }
+
+  /* Tooltip-style hover info */
+  .time-ago {
+    font-size: 11px;
+    color: var(--text-tertiary);
+    flex-shrink: 0;
+    min-width: 60px;
+    text-align: right;
+  }
+
+  [data-theme="dark"] .stat-card:hover { border-color: #3a3a3a; }
+  [data-theme="dark"] .issue-type-badge.medium { background: #1a1a1a; }
+
+  /* Responsive */
+  @media (max-width: 1024px) {
+    .sidebar { width: 200px; }
+    .main { margin-left: 200px; padding: 24px 28px; }
+    .content-grid { grid-template-columns: 1fr; }
+    .stats-row { grid-template-columns: repeat(2, 1fr); }
+  }
+
+  @media (max-width: 768px) {
+    .sidebar { display: none; }
+    .main { margin-left: 0; padding: 16px; }
+  }
+
+  /* Hover card effect */
+  .card.clickable { cursor: pointer; transition: box-shadow var(--transition), border-color var(--transition); }
+  .card.clickable:hover { box-shadow: var(--shadow); border-color: #d0d5dd; }
+  [data-theme="dark"] .card.clickable:hover { border-color: #3a3a3a; }
+</style>
+</head>
+<body>
+
+<!-- Sidebar -->
+<aside class="sidebar">
+  <a href="#" class="sidebar-logo">
+    <div class="logo-icon">A</div>
+    <span class="logo-text">AI Workspace</span>
+  </a>
+
+  <nav class="sidebar-nav">
+    <a href="#" class="sidebar-item active">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+      Dashboard
+    </a>
+    <a href="#" class="sidebar-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+      Issues
+      <span class="badge">23</span>
+    </a>
+    <a href="#" class="sidebar-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="3"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="3" x2="9" y2="21"/></svg>
+      Board
+    </a>
+  </nav>
+
+  <div class="sidebar-divider"></div>
+
+  <div class="sidebar-section-label">项目</div>
+
+  <div class="sidebar-project">
+    <span class="project-dot" style="background:#5e6ad2;"></span>
+    Certification System
+  </div>
+  <div class="sidebar-project">
+    <span class="project-dot" style="background:#3ecf8e;"></span>
+    AI Agent
+  </div>
+
+  <div class="sidebar-divider"></div>
+
+  <div class="sidebar-section-label">设置</div>
+  <a href="#" class="sidebar-item">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+    Settings
+  </a>
+
+  <div class="sidebar-footer">
+    <div class="sidebar-user">
+      <div class="user-avatar">PM</div>
+      <div class="user-info">
+        <span class="user-name">yzt26</span>
+        <span class="user-role">Product Manager</span>
+      </div>
+    </div>
+  </div>
+</aside>
+
+<!-- Main content -->
+<main class="main">
+  <!-- Top bar -->
+  <div class="topbar">
+    <div class="topbar-left">
+      <h1>Dashboard</h1>
+      <p class="subtitle">Certification System · 更新于 2 分钟前</p>
+    </div>
+    <div class="topbar-right">
+      <button class="btn-icon" onclick="toggleTheme()" title="切换主题">🌓</button>
+      <button class="btn btn-secondary">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/><line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="17" y1="16" x2="23" y2="16"/></svg>
+        筛选
+      </button>
+      <a href="#" class="btn btn-primary">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        新建 Issue
+      </a>
+    </div>
+  </div>
+
+  <!-- Stats -->
+  <div class="stats-row">
+    <div class="stat-card">
+      <div class="stat-icon">📋</div>
+      <div class="stat-num">23</div>
+      <div class="stat-label">总 Issue</div>
+      <div class="stat-sub">↗ 3 个本周新增</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon">🐛</div>
+      <div class="stat-num">5</div>
+      <div class="stat-label">Bug</div>
+      <div class="stat-sub">2 个紧急</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon">✨</div>
+      <div class="stat-num">8</div>
+      <div class="stat-label">Feature</div>
+      <div class="stat-sub">3 个开发中</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon">✅</div>
+      <div class="stat-num">4</div>
+      <div class="stat-label">本周完成</div>
+      <div class="stat-sub">较上周 +1</div>
+    </div>
+  </div>
+
+  <!-- Page tabs -->
+  <div class="page-tabs">
+    <button class="page-tab active">概览</button>
+    <button class="page-tab">我的任务</button>
+    <button class="page-tab">全部 Issues</button>
+  </div>
+
+  <!-- Content -->
+  <div class="content-grid">
+    <!-- 我的任务 -->
+    <div class="card">
+      <div class="card-header">
+        📌 我的任务
+        <span class="card-count">3</span>
+      </div>
+      <div class="card-body">
+        <a href="#" class="issue-item">
+          <span class="issue-type-dot bug"></span>
+          <span class="issue-type-badge bug">Bug</span>
+          <span class="issue-id">#12</span>
+          <span class="issue-title">登录页面在 Chrome 最新版点击后报 500 错误</span>
+          <span class="issue-priority high">高</span>
+          <span class="issue-status in-progress">开发中</span>
+          <span class="issue-assignee">张</span>
+        </a>
+        <a href="#" class="issue-item">
+          <span class="issue-type-dot feature"></span>
+          <span class="issue-type-badge feature">Feature</span>
+          <span class="issue-id">#8</span>
+          <span class="issue-title">用户数据导出功能，支持 Excel 和 CSV 格式</span>
+          <span class="issue-priority medium">中</span>
+          <span class="issue-status suggested">待确认</span>
+          <span class="issue-assignee">张</span>
+        </a>
+        <a href="#" class="issue-item">
+          <span class="issue-type-dot bug"></span>
+          <span class="issue-type-badge bug">Bug</span>
+          <span class="issue-id">#15</span>
+          <span class="issue-title">列表分页在数据超过 100 条后失效</span>
+          <span class="issue-priority urgent">紧急</span>
+          <span class="issue-status testing">测试中</span>
+          <span class="issue-assignee">李</span>
+        </a>
+      </div>
+    </div>
+
+    <!-- 状态分布 -->
+    <div class="card">
+      <div class="card-header">
+        📊 状态分布
+        <a href="#" class="card-action">查看全部 →</a>
+      </div>
+      <div class="status-list">
+        <div class="status-row">
+          <span class="status-indicator new"></span>
+          <span class="status-row-name">New 新建</span>
+          <span class="status-row-count">5</span>
+        </div>
+        <div class="status-row">
+          <span class="status-indicator suggested"></span>
+          <span class="status-row-name">Suggested 待确认</span>
+          <span class="status-row-count">3</span>
+        </div>
+        <div class="status-row">
+          <span class="status-indicator inprogress"></span>
+          <span class="status-row-name">In Progress 开发中</span>
+          <span class="status-row-count">6</span>
+        </div>
+        <div class="status-row">
+          <span class="status-indicator readytest"></span>
+          <span class="status-row-name">Ready for Test 待测试</span>
+          <span class="status-row-count">3</span>
+        </div>
+        <div class="status-row">
+          <span class="status-indicator testing"></span>
+          <span class="status-row-name">Testing 测试中</span>
+          <span class="status-row-count">2</span>
+        </div>
+        <div class="status-row">
+          <span class="status-indicator done"></span>
+          <span class="status-row-name">Done 已完成</span>
+          <span class="status-row-count">4</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 待处理 -->
+    <div class="card">
+      <div class="card-header">
+        ⏳ 待处理
+        <span class="card-count">5</span>
+      </div>
+      <div class="card-body">
+        <a href="#" class="issue-item">
+          <span class="issue-type-dot task"></span>
+          <span class="issue-type-badge task">Task</span>
+          <span class="issue-id">#20</span>
+          <span class="issue-title">更新项目依赖至最新版本</span>
+          <span class="issue-priority medium">中</span>
+          <span class="issue-status new">新建</span>
+          <span class="issue-assignee unassigned">?</span>
+        </a>
+        <a href="#" class="issue-item">
+          <span class="issue-type-dot improvement"></span>
+          <
